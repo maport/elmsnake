@@ -1,0 +1,14 @@
+= elmsnake
+
+Multiplayer snake game written in http://elm-lang.org/[Elm] and using http://www.airconsole.com/[AirConsole] for multiplayer support.
+
+Very much a work-in-progress! 
+
+Visit the following URL on a big screen device (PC, Mac, SmartTV or tablet): 
+
+====
+http://www.airconsole.com/#http://maport.github.io/elmsnake/
+====
+
+Then use your smartphone as a controller by visiting http://www.airconsole.com/ and entering the displayed code. Up to 5 players can play at any one time.
+
