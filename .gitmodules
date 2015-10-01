@@ -1,0 +1,3 @@
+[submodule "src/airconsole-controls"]
+	path = src/airconsole-controls
+	url = git@github.com:AirConsole/airconsole-controls.git
