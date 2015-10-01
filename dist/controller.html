@@ -1,0 +1,78 @@
+<html>
+<head>
+  <script type="text/javascript" src="airconsole-controls/dpad/dpad.js"></script>
+  <script type="text/javascript"
+          src="http://www.airconsole.com/api/airconsole-1.2.1.js"></script>
+  <script type="text/javascript">
+
+    var airconsole;
+    /**
+     * Sets up the communication to the screen.
+     */
+    function init() {
+      airconsole = new AirConsole({"orientation": "portrait"});
+
+      airconsole.onMessage = function(from, data) {
+          var colour = data;
+          document.getElementById("dpad").style.borderBottomColor = colour;
+      }
+
+      airconsole.onReady = function(code, device_id, device_data) { }
+
+      var dpad = new DPad("dpad", {
+        "directionchange": function(key, pressed) {
+          if (pressed) {
+            airconsole.message(AirConsole.SCREEN, {key: key})
+          }
+        },
+        "touchstart": function() { },
+        "touchend": function(had_direction) { },
+      });
+    }
+  </script>
+  <link rel="stylesheet" href="airconsole-controls/dpad/dpad.css">
+  <style type="text/css">
+    body {
+      -ms-user-select: none;
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    .example-container {
+      position: relative;
+      background-color: #3b3b3b;
+      text-align: center;
+      font-family: sans-serif;
+      display: inline-block;
+      width: 100%;
+      height: 100%;
+      max-width: 1000px;
+      max-height: 500px;
+    }
+
+    #dpad {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0px;
+      left: 0px;
+      border-bottom-style: solid; 
+      border-bottom-color: transparent; 
+    }
+
+  </style>
+</head>
+<body onload="init()">
+<div class="example-container">
+  <div id="dpad">
+    <div>
+      <div class="dpad-arrow dpad-arrow-up"></div>
+      <div class="dpad-arrow dpad-arrow-down"></div>
+      <div class="dpad-arrow dpad-arrow-left"></div>
+      <div class="dpad-arrow dpad-arrow-right"></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
