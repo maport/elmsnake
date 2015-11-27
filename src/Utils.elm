@@ -12,7 +12,10 @@ delayedTask delay task =
 
 sign : Float -> Float
 sign value =
-  if | value > 0 -> 1 
-     | value < 0 -> -1 
-     | otherwise -> 0
+  if value > 0 then
+    1
+  else if value < 0 then
+   -1
+  else
+    0
 

@@ -91,28 +91,31 @@ makePlayer model id =
 updateScore : Int -> Player -> Player
 updateScore delta player =
   case player.status of
-    Live -> { player | score <- (max 0 (player.score + delta)) }
+    Live -> { player | score = (max 0 (player.score + delta)) }
     _ -> player
 
 
 killPlayer : Model -> Player -> Player
 killPlayer model player =
   makePlayer model player.id
-  |> \p -> { p | score <- (updateScore -20 player).score }
+  |> \p -> { p | score = (updateScore -20 player).score }
 
 
 allowedDirChange: Position -> Position -> Bool
 allowedDirChange dir dir' =
-  if | dir.x == 0 && dir'.x /= 0 -> True
-     | dir.y == 0 && dir'.y /= 0 -> True
-     | otherwise -> False
+  if dir.x == 0 && dir'.x /= 0 then
+    True
+  else if dir.y == 0 && dir'.y /= 0 then
+    True
+  else
+    False
 
 
 changePlayerPendingDir: Position -> Player -> Player
 changePlayerPendingDir dir player =
   if allowedDirChange player.dir dir
     then
-      { player | pendingDir <- Just dir }
+      { player | pendingDir = Just dir }
     else
       player
 
@@ -125,8 +128,8 @@ changePlayerDir dir player =
               |> Maybe.map (\head -> head :: line)
               |> Maybe.withDefault line
 
-  in { player | dir <- dir
-              , line <- line' }
+  in { player | dir = dir
+              , line = line' }
 
 
 segmentLength : Position -> Position -> Float
@@ -140,32 +143,22 @@ segmentLength pos1 pos2 =
 
 randomDir: Random.Generator Position
 randomDir =
-  Random.customGenerator
-    <| \seed ->
-
-      let (whichDir, seed') = Random.generate (Random.int 0 3) seed
-
-          dir = case whichDir of
-            0 -> { x=0, y=-1 }
-            1 -> { x=1, y=0 }
-            2 -> { x=0, y=1 }
-            3 -> { x=-1, y=0 }
-
-      in (dir, seed')
-
+  let toDir i = 
+    case i of
+      0 -> { x=0, y=-1 }
+      1 -> { x=1, y=0 }
+      2 -> { x=0, y=1 }
+      3 -> { x=-1, y=0 }
+      _ -> Debug.crash "Random.int returned out-of-range value"
+  in Random.map toDir (Random.int 0 3)
+ 
 
 randomPos: Position -> Random.Generator Position
 randomPos halfSize =
-  Random.customGenerator
-  <| \seed ->
-
-      let rangeX = Random.int -(ceiling halfSize.x) (floor halfSize.x)
-          rangeY = Random.int -(ceiling halfSize.y) (floor halfSize.y)
-          ((x, y), seed') = Random.generate (Random.pair rangeX rangeY) seed
-
-      in ( { x = (toFloat x), y = (toFloat y) }
-         , seed'
-         )
+  let rangeX = Random.int -(ceiling halfSize.x) (floor halfSize.x)
+      rangeY = Random.int -(ceiling halfSize.y) (floor halfSize.y)
+      combine x y = { x = (toFloat x), y = (toFloat y) }
+  in Random.map2 combine rangeX rangeY
 
 
 segmentDir : Position -> Position -> Position
@@ -229,8 +222,8 @@ nextTurnPosition : Position -> Position -> Position
 nextTurnPosition dir pos =
   let (movingAxis, updatePos) =
         if dir.x == 0
-          then (.y, \f -> { pos | y <- toFloat (f pos.y) })
-          else (.x, \f -> { pos | x <- toFloat (f pos.x) })
+          then (.y, \f -> { pos | y = toFloat (f pos.y) })
+          else (.x, \f -> { pos | x = toFloat (f pos.x) })
 
   in updatePos (if (movingAxis dir) > 0 then ceiling else floor)
 
@@ -252,7 +245,7 @@ shortenLine len line =
 
 makePlayerLive: Player -> Player
 makePlayerLive player =
-  { player | status <- Live } 
+  { player | status = Live } 
 
 
 playerIsLive: Player -> Bool
@@ -278,12 +271,12 @@ movePlayer dist player =
       in case maybeTurnPos of
 
            Nothing ->
-             { player | line <- updateLine ((movePosition player.dir dist pos) :: tail) }
+             { player | line = updateLine ((movePosition player.dir dist pos) :: tail) }
 
            Just turnPos ->
-             { player | line <- updateLine (turnPos :: turnPos :: tail)
-                      , dir <- player.pendingDir |> Maybe.withDefault player.dir
-                      , pendingDir <- Nothing
+             { player | line = updateLine (turnPos :: turnPos :: tail)
+                      , dir = player.pendingDir |> Maybe.withDefault player.dir
+                      , pendingDir = Nothing
              }
 
     _ -> player

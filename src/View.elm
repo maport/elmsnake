@@ -64,16 +64,18 @@ wallSvg {line} =
 
 foodSvg : Food -> Svg.Svg
 foodSvg {line} = 
-  let [{x,y},_] = line
-  in Svg.circle
-       [ SVG.cx (toString x)
-       , SVG.cy (toString y)
-       , SVG.r "0.4"
-       , SVG.fill "none"
-       , SVG.stroke "#FF7061"
-       , SVG.strokeWidth "0.1"
-       ]
-       []
+  case line of
+    [{x,y},_] ->
+      Svg.circle
+        [ SVG.cx (toString x)
+        , SVG.cy (toString y)
+        , SVG.r "0.4"
+        , SVG.fill "none"
+        , SVG.stroke "#FF7061"
+        , SVG.strokeWidth "0.1"
+        ]
+        []
+    _ -> Debug.crash "badly formed food!"
 
 
 scoreSvg : Float -> Float -> Player -> Svg.Svg

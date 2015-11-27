@@ -85,6 +85,8 @@ body msg =
       Js.object2 Data
         ("from" := Js.int)
         ("data" := Js.value)
+    _ ->
+      Js.fail ("unknown message: " ++ msg)
     
 
 parseMessage : Js.Value -> Result String Action

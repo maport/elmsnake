@@ -82,7 +82,7 @@ movePlayers clockTime model =
 eatFoods: Float -> Players -> List Food -> (Players, List Food)
 eatFoods maxLen players foods =
   let eatFood player =
-        { player | length <- (min (player.length + 1) maxLen) }
+        { player | length = (min (player.length + 1) maxLen) }
         |> M.updateScore 5
 
       checkFoods id player (players, foods) =
@@ -104,8 +104,8 @@ maybeSpawnFood model =
       _ -> False
 
   in if shouldSpawn then
-       { model | foods <- (M.makeFood model) :: model.foods
-               , lastFoodSpawn <- model.clockTime }
+       { model | foods = (M.makeFood model) :: model.foods
+               , lastFoodSpawn = model.clockTime }
      else
        model
 
@@ -114,12 +114,13 @@ userDataDecoder : Js.Decoder Position
 userDataDecoder =
   let toPos dir =
     case dir of
-      "up" -> {x=0, y=-1}
-      "right" -> {x=1, y=0}
-      "down" -> {x=0, y=1}
-      "left" -> {x=-1, y=0}
+      "up" -> Js.succeed {x=0, y=-1}
+      "right" -> Js.succeed {x=1, y=0}
+      "down" -> Js.succeed {x=0, y=1}
+      "left" -> Js.succeed {x=-1, y=0}
+      _ -> Js.fail ("Invalid dir " ++ dir)
 
-  in Js.map toPos ("key" := Js.string)
+  in ("key" := Js.string) `Js.andThen` toPos
 
 
 notifyNewPlayers : List Player -> Effects Action
@@ -159,7 +160,7 @@ handleConsoleAction action (model, effects) =
 
           notifyEffects = notifyNewPlayers (Dict.values arriving)
 
-      in ( { model | players <- players' }
+      in ( { model | players = players' }
          , Effects.batch [effects, notifyEffects]
          )
 
@@ -173,7 +174,7 @@ handleConsoleAction action (model, effects) =
             let dir' = Js.decodeValue userDataDecoder json |> Result.toMaybe |> Maybe.withDefault p.dir
                 player' = M.changePlayerPendingDir dir' p |> M.makePlayerLive
 
-            in ( { model | players <- Dict.insert userId player' model.players }
+            in ( { model | players = Dict.insert userId player' model.players }
                , effects 
                )
 
@@ -191,9 +192,9 @@ update action model =
       let players' = movePlayers clockTime model   
           (players'', foods') = eatFoods model.maxSnakeLength players' model.foods
 
-      in ( { model | players <- players''
-                   , foods <- foods'
-                   , clockTime <- Just clockTime
+      in ( { model | players = players''
+                   , foods = foods'
+                   , clockTime = Just clockTime
            } |> maybeSpawnFood
          ,
            Effects.tick Tick
