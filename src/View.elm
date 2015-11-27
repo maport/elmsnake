@@ -46,6 +46,7 @@ playerSvg (id, {line, status}) =
     , SVG.strokeLinecap "round"
     , SVG.strokeLinejoin "round"
     , SVG.opacity (if status == Ghost then "0.5" else "1")
+    , SVG.filter "url(#glow)"
     ]
     []
 
@@ -98,6 +99,19 @@ scoresSvg x y players =
     (List.indexedMap (\i p -> scoreSvg (x+(toFloat i)*7) y p) players)
 
 
+defs : Svg.Svg
+defs =
+  Svg.defs []
+    [ Svg.filter [ SVG.id "glow", SVG.x "-50%", SVG.y "-50%", SVG.width "200%", SVG.height "200%" ]
+      [ Svg.feOffset [ SVG.dx "0.2", SVG.dy "0.2", SVG.in' "SourceAlpha", SVG.result "offset1" ] []
+      , Svg.feOffset [ SVG.dx "-0.2", SVG.dy "-0.2", SVG.in' "SourceAlpha", SVG.result "offset2" ] []
+      , Svg.feComposite [ SVG.operator "in", SVG.in' "offset1", SVG.in2 "offset2" ] []
+      , Svg.feGaussianBlur [ SVG.stdDeviation "0.2", SVG.result "blur" ] []
+      , Svg.feComposite [ SVG.operator "in", SVG.in' "SourceGraphic", SVG.in2 "blur" ] []
+      ]
+    ]
+
+
 view : Signal.Address a -> Model -> Html
 view address model =
   let hSize = model.halfSize
@@ -107,7 +121,8 @@ view address model =
        , SVG.height "100%"
        , SVG.viewBox ((toString -hSize.x) ++ " " ++ (toString -hSize.y) ++ " " ++ (toString (2*hSize.x)) ++ " " ++ (toString (2*hSize.y)))
        ]
-       [ Svg.rect
+       [ defs
+       , Svg.rect
            [ SVG.x (toString -hSize.x)
            , SVG.y (toString -hSize.y)
            , SVG.width (toString (2*hSize.x))
